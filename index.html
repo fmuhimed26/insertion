@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل شامل للرتل (Queue) في C#</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-2: #10b981;
+            --accent-3: #f59e0b;
+            --border: #334155;
+            --code-bg: #0b1120;
+            --heading: #f1f5f9;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', 'Cairo', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* شاشة البداية */
+        #startScreen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .start-header {
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            color: var(--heading);
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .start-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            max-width: 600px;
+            margin: 20px 0;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+        
+        .start-list {
+            list-style: none;
+            text-align: right;
+            margin: 20px 0;
+        }
+        
+        .start-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+        }
+        
+        .start-button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: transform 0.3s;
+            animation: fadeIn 1s ease 0.6s both;
+        }
+        
+        .start-button:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* شاشة الهيدر مع التنقل */
+        #headerScreen {
+            min-height: 100vh;
+            display: none;
+        }
+        
+        .header-content {
+            padding-top: 40px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 40px 0;
+            padding: 20px;
+            background: var(--card);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            justify-content: center;
+        }
+        
+        .nav-tab {
+            padding: 12px 25px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .nav-tab:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .nav-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .content-preview {
+            text-align: center;
+            color: var(--muted);
+            margin-top: 40px;
+            font-style: italic;
+        }
+        
+        /* شاشة المحتوى */
+        #contentScreen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .back-button {
+            padding: 10px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            background: var(--accent);
+        }
+        
+        .content-title {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        
+        /* الأنماط العامة للمحتوى */
+        .section {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+        }
+        
+        .section h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .section h3 {
+            color: var(--accent-2);
+            margin: 15px 0 10px;
+        }
+        
+        .section h4 {
+            color: var(--accent-3);
+            margin: 12px 0 8px;
+            font-size: 1.1rem;
+        }
+        
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 5px solid var(--accent);
+            direction: ltr;
+        }
+        
+        .code-line {
+            font-family: 'Consolas', monospace;
+            font-size: 0.95rem;
+            color: #e6edf3;
+            margin: 3px 0;
+            white-space: pre;
+        }
+        
+        .comment { color: #6ee7b7; }
+        .keyword { color: #f472b6; }
+        .class { color: #60a5fa; }
+        .method { color: #c4b5fd; }
+        .string { color: #fbbf24; }
+        .number { color: #34d399; }
+        
+        .queue-visual {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .queue-item {
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 60px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .queue-item.front {
+            background: linear-gradient(135deg, var(--accent-2), #059669);
+        }
+        
+        .queue-item.back {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .question {
+            background: rgba(59, 130, 246, 0.1);
+            border-right: 5px solid var(--accent);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .question h4 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .answer {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .note {
+            background: rgba(245, 158, 11, 0.1);
+            border-right: 4px solid var(--accent-3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .comparison-table th {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        .complexity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .complexity-table th,
+        .complexity-table td {
+            border: 1px solid var(--border);
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .complexity-table th {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-2);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+        
+        @media (max-width: 768px) {
+            .title { font-size: 2.5rem; }
+            .nav-tab { min-width: 100px; padding: 10px 15px; }
+            .content-title { font-size: 1.5rem; }
+            .section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة البداية -->
+    <div id="startScreen">
+        <div class="start-header">
+            <h1 class="title">دليل شامل للرتل (Queue)</h1>
+            <p class="subtitle">اكتشف عالم هياكل البيانات وأتقن استخدام الرتل مع أمثلة عملية وتطبيقات حقيقية</p>
+        </div>
+        
+        <div class="start-content">
+            <h3 style="color: var(--accent); margin-bottom: 20px;">📚 ما الذي ستتعلمه في هذا الدليل؟</h3>
+            <ul class="start-list">
+                <li>✅ مفاهيم أساسية الرتل (Queue) ونظام FIFO</li>
+                <li>✅ كيفية إنشاء واستخدام الرتل</li>
+                <li>✅ جميع العمليات الأساسية (Enqueue, Dequeue, Peek)</li>
+                <li>✅ أمثلة عملية ونظامية متكاملة</li>
+                <li>✅ مقارنة بين الرتل وهياكل البيانات الأخرى</li>
+                <li>✅ أسئلة وأجوبة شاملة مع تحليل تعقيد</li>
+                <li>✅ تطبيقات عملية وواقعية للرتل</li>
+            </ul>
+            
+            <button id="startButton" class="start-button">
+                ابدأ التعلم الآن
+            </button>
+        </div>
+    </div>
+    
+    <!-- شاشة الهيدر مع التنقل (تظهر بعد الضغط على ابدأ) -->
+    <div id="headerScreen">
+        <div class="container">
+            <header>
+                <h1 class="title">دليل شامل للرتل (Queue)</h1>
+            </header>
+            
+            <div class="nav-tabs">
+                <div class="nav-tab" data-content="intro">مقدمة</div>
+                <div class="nav-tab" data-content="operations">العمليات</div>
+                <div class="nav-tab" data-content="examples">أمثلة</div>
+                <div class="nav-tab" data-content="applications">تطبيقات</div>
+                <div class="nav-tab" data-content="comparison">مقارنة</div>
+                <div class="nav-tab" data-content="qa">أسئلة</div>
+            </div>
+            
+            <div class="content-preview">
+                <p>اختر أحد الأقسام أعلاه لعرض المحتوى</p>
+            </div>
+            
+            <footer>
+                <p>دليل الرتل | Fidaa Muhimed</p>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- شاشة المحتوى (تظهر بعد اختيار قسم) -->
+    <div id="contentScreen">
+        <div class="container">
+            <div class="content-header">
+                <button id="backButton" class="back-button">← العودة للقائمة</button>
+                <h2 class="content-title" id="contentTitle"></h2>
+                <div style="width: 100px;"></div> <!-- spacer -->
+            </div>
+            
+            <div id="contentContainer">
+                <!-- المحتوى سيتم إضافته هنا -->
+            </div>
+            
+            <footer>
+                <p>دليل الرتل | Fidaa Muhimed</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startScreen = document.getElementById('startScreen');
+            const headerScreen = document.getElementById('headerScreen');
+            const contentScreen = document.getElementById('contentScreen');
+            const startButton = document.getElementById('startButton');
+            const backButton = document.getElementById('backButton');
+            const contentTitle = document.getElementById('contentTitle');
+            const contentContainer = document.getElementById('contentContainer');
+            const navTabs = document.querySelectorAll('.nav-tab');
+            
+            // 1. بدء التعلم: الانتقال إلى شاشة الهيدر مع التنقل
+            startButton.addEventListener('click', function() {
+                startScreen.style.display = 'none';
+                headerScreen.style.display = 'block';
+                contentScreen.style.display = 'none';
+                
+                // مسح أي محتوى سابق
+                contentContainer.innerHTML = '';
+                contentTitle.textContent = '';
+                
+                // إزالة التحديد من جميع الأزرار
+                navTabs.forEach(tab => tab.classList.remove('active'));
+            });
+            
+            // 2. اختيار قسم من التنقل
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const contentType = this.getAttribute('data-content');
+                    
+                    // تحديث التبويب النشط
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // تحميل المحتوى
+                    loadContent(contentType);
+                    
+                    // الانتقال إلى شاشة المحتوى
+                    headerScreen.style.display = 'none';
+                    contentScreen.style.display = 'block';
+                    
+                    // التمرير للأعلى
+                    window.scrollTo(0, 0);
+                });
+            });
+            
+            // 3. العودة من المحتوى إلى التنقل
+            backButton.addEventListener('click', function() {
+                contentScreen.style.display = 'none';
+                headerScreen.style.display = 'block';
+                
+                // مسح المحتوى
+                contentContainer.innerHTML = '';
+                contentTitle.textContent = '';
+                
+                // إزالة التحديد من التبويبات
+                navTabs.forEach(tab => tab.classList.remove('active'));
+                
+                // التمرير للأعلى
+                window.scrollTo(0, 0);
+            });
+            
+            // 4. دالة تحميل المحتوى
+            function loadContent(type) {
+                let title = '';
+                let content = '';
+                
+                switch(type) {
+                    case 'intro':
+                        title = ' مقدمة شاملة عن الرتل (Queue)';
+                        content = getIntroContent();
+                        break;
+                    case 'operations':
+                        title = ' العمليات الأساسية والمتقدمة';
+                        content = getOperationsContent();
+                        break;
+                    case 'examples':
+                        title = ' أمثلة عملية متكاملة';
+                        content = getExamplesContent();
+                        break;
+                    case 'applications':
+                        title = 'تطبيقات عملية للرتل';
+                        content = getApplicationsContent();
+                        break;
+                    case 'comparison':
+                        title = ' مقارنات وتحليل تعقيد';
+                        content = getComparisonContent();
+                        break;
+                    case 'qa':
+                        title = ' وأجوبة شاملة';
+                        content = getQAContent();
+                        break;
+                }
+                
+                contentTitle.textContent = title;
+                contentContainer.innerHTML = content;
+            }
+            
+            // 5. محتويات الأقسام
+            function getIntroContent() {
+                return `
+                    <div class="section">
+                        <h2>ما هو الرتل (Queue)؟</h2>
+                        <p>الرتل (Queue) هو هيكل بيانات يعمل بنظام <strong>FIFO</strong> (First In First Out) - أول عنصر يدخل هو أول عنصر يخرج.</p>
+                        
+                        <div class="note">
+                            <h4>💡 مفهوم FIFO:</h4>
+                            <p>مشابه لطابور الانتظار في الحياة الواقعية - من يأتي أولاً يخدم أولاً.</p>
+                        </div>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <div class="queue-visual">
+                                <div class="queue-item front">10</div>
+                                <div class="queue-item">20</div>
+                                <div class="queue-item">30</div>
+                                <div class="queue-item back">40</div>
+                            </div>
+                            <p style="color: var(--muted); margin-top: 10px;">↪️ العناصر تضاف من الخلف (Enqueue) وتزال من الأمام (Dequeue)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>أنواع الرتل في C#</h2>
+                        
+                        <h3>1. الرتل العام (غير مكتوب - Non-generic)</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// في System.Collections</span></div>
+                            <div class="code-line"><span class="keyword">using</span> System.Collections;</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إنشاء رتل غير مكتوب - يمكنه تخزين أي نوع</span></div>
+                            <div class="code-line">Queue myQueue = <span class="keyword">new</span> Queue();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إضافة عناصر من أنواع مختلفة</span></div>
+                            <div class="code-line">myQueue.Enqueue(<span class="string">"Ahmed"</span>); <span class="comment">// نص</span></div>
+                            <div class="code-line">myQueue.Enqueue(25);        <span class="comment">// رقم</span></div>
+                            <div class="code-line">myQueue.Enqueue(<span class="keyword">true</span>);      <span class="comment">// منطقي</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// عند القراءة نحتاج لتحويل النوع (Casting)</span></div>
+                            <div class="code-line"><span class="keyword">string</span> name = (<span class="keyword">string</span>)myQueue.Dequeue();</div>
+                        </div>
+                        
+                        <div class="note">
+                            <h4>⚠️ ملاحظة:</h4>
+                            <p>الرتل العام أقل أماناً لأنه يخزن Object ويحتاج لتحويل النوع، نادر الاستخدام في المشاريع الجديدة.</p>
+                        </div>
+
+                        <h3>2. الرتل المكتوب (Generic Queue)</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// في System.Collections.Generic</span></div>
+                            <div class="code-line"><span class="keyword">using</span> System.Collections.Generic;</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إنشاء رتل مكتوب - يحدد نوع البيانات</span></div>
+                            <div class="code-line">Queue<<span class="keyword">string</span>> namesQueue = <span class="keyword">new</span> Queue<<span class="keyword">string</span>>();</div>
+                            <div class="code-line">Queue<<span class="keyword">int</span>> numbersQueue = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إضافة عناصر (يجب أن تكون من نفس النوع)</span></div>
+                            <div class="code-line">namesQueue.Enqueue(<span class="string">"أحمد"</span>);</div>
+                            <div class="code-line">namesQueue.Enqueue(<span class="string">"محمد"</span>);</div>
+                            <div class="code-line">namesQueue.Enqueue(<span class="string">"سارة"</span>);</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// القراءة بدون تحويل نوع</span></div>
+                            <div class="code-line"><span class="keyword">string</span> firstPerson = namesQueue.Dequeue(); <span class="comment">// لا حاجة لـ (string)</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function getOperationsContent() {
+                return `
+                    <div class="section">
+                        <h2>العمليات الأساسية على الرتل</h2>
+                        
+                        <h3>1. إنشاء الرتل وتهيئته</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// إنشاء رتل فارغ</span></div>
+                            <div class="code-line">Queue<<span class="keyword">int</span>> queue1 = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إنشاء رتل بسعة ابتدائية (للتحسين)</span></div>
+                            <div class="code-line">Queue<<span class="keyword">string</span>> queue2 = <span class="keyword">new</span> Queue<<span class="keyword">string</span>>(100);</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إنشاء رتل من مجموعة موجودة</span></div>
+                            <div class="code-line">List<<span class="keyword">int</span>> numbers = <span class="keyword">new</span> List<<span class="keyword">int</span>> { 1, 2, 3, 4, 5 };</div>
+                            <div class="code-line">Queue<<span class="keyword">int</span>> queue3 = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>(numbers);</div>
+                        </div>
+                        
+                        <h3>2. Enqueue() - إضافة عنصر للنهاية</h3>
+                        <div class="code-block">
+                            <div class="code-line">Queue<<span class="keyword">int</span>> queue = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إضافة عناصر إلى نهاية الرتل</span></div>
+                            <div class="code-line">queue.Enqueue(10);   <span class="comment">// الرتل: [10]</span></div>
+                            <div class="code-line">queue.Enqueue(20);   <span class="comment">// الرتل: [10, 20]</span></div>
+                            <div class="code-line">queue.Enqueue(30);   <span class="comment">// الرتل: [10, 20, 30]</span></div>
+                            <div class="code-line">queue.Enqueue(40);   <span class="comment">// الرتل: [10, 20, 30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// التعقيد الزمني: O(1) - وقت ثابت</span></div>
+                        </div>
+                        
+                        <h3>3. Dequeue() - إزالة عنصر من البداية</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// الرتل الحالي: [10, 20, 30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إزالة العنصر الأول من الرتل وإرجاعه</span></div>
+                            <div class="code-line"><span class="keyword">int</span> firstItem = queue.Dequeue();</div>
+                            <div class="code-line">Console.WriteLine(<span class="string">"العنصر الأول: "</span> + firstItem); <span class="comment">// الناتج: 10</span></div>
+                            <div class="code-line"><span class="comment">// الرتل يصبح: [20, 30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="keyword">int</span> secondItem = queue.Dequeue();</div>
+                            <div class="code-line">Console.WriteLine(<span class="string">"العنصر الثاني: "</span> + secondItem); <span class="comment">// الناتج: 20</span></div>
+                            <div class="code-line"><span class="comment">// الرتل يصبح: [30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// التعقيد الزمني: O(1) - وقت ثابت</span></div>
+                        </div>
+                        
+                        <div class="note">
+                            <h4>⚠️ تحذير:</h4>
+                            <p>استدعاء Dequeue() على رتل فارغ يسبب استثناء InvalidOperationException</p>
+                        </div>
+
+                        <h3>4. Peek() - مشاهدة العنصر الأول بدون إزالته</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// الرتل الحالي: [30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// عرض العنصر الأول بدون إزالته</span></div>
+                            <div class="code-line"><span class="keyword">int</span> nextItem = queue.Peek();</div>
+                            <div class="code-line">Console.WriteLine(<span class="string">"العنصر التالي: "</span> + nextItem); <span class="comment">// الناتج: 30</span></div>
+                            <div class="code-line"><span class="comment">// الرتل يبقى: [30, 40] - لم يتغير</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="keyword">int</span> stillNext = queue.Peek();</div>
+                            <div class="code-line">Console.WriteLine(<span class="string">"لا يزال التالي: "</span> + stillNext); <span class="comment">// الناتج: 30</span></div>
+                            <div class="code-line"><span class="comment">// الرتل لا يزال: [30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// التعقيد الزمني: O(1) - وقت ثابت</span></div>
+                        </div>
+                        
+                        <h3>5. عمليات التحقق والمعلومات</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// Count: عدد العناصر في الرتل</span></div>
+                            <div class="code-line"><span class="keyword">int</span> count = queue.Count;</div>
+                            <div class="code-line">Console.WriteLine(<span class="string">"عدد العناصر: "</span> + count); <span class="comment">// الناتج: 2</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// Contains: البحث عن عنصر</span></div>
+                            <div class="code-line"><span class="keyword">bool</span> hasThirty = queue.Contains(30);  <span class="comment">// true</span></div>
+                            <div class="code-line"><span class="keyword">bool</span> hasFifty = queue.Contains(50);    <span class="comment">// false</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// ToArray: تحويل الرتل إلى مصفوفة</span></div>
+                            <div class="code-line"><span class="keyword">int</span>[] array = queue.ToArray();</div>
+                            <div class="code-line"><span class="comment">// المصفوفة: [30, 40]</span></div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// Clear: مسح جميع العناصر</span></div>
+                            <div class="code-line">queue.Clear();</div>
+                            <div class="code-line">Console.WriteLine(queue.Count); <span class="comment">// الناتج: 0</span></div>
+                        </div>
+                        
+                        <h3>6. استخدام foreach مع الرتل</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// إعادة تعبئة الرتل</span></div>
+                            <div class="code-line">queue.Enqueue(100);</div>
+                            <div class="code-line">queue.Enqueue(200);</div>
+                            <div class="code-line">queue.Enqueue(300);</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// المرور على جميع العناصر بدون تعديل الرتل</span></div>
+                            <div class="code-line"><span class="keyword">foreach</span> (<span class="keyword">int</span> item <span class="keyword">in</span> queue)</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    Console.WriteLine(item);</div>
+                            <div class="code-line">}</div>
+                            <div class="code-line"><span class="comment">// الناتج:</span></div>
+                            <div class="code-line"><span class="comment">// 100</span></div>
+                            <div class="code-line"><span class="comment">// 200</span></div>
+                            <div class="code-line"><span class="comment">// 300</span></div>
+                            <div class="code-line"><span class="comment">// الرتل يبقى: [100, 200, 300] - لم يتغير</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function getExamplesContent() {
+                return `
+                    <div class="section">
+                        <h2>📋 مثال 1: نظام طابور البنك</h2>
+                        <p>تطبيق كامل لمحاكاة نظام طابور في بنك:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-line"><span class="keyword">using</span> System;</div>
+                            <div class="code-line"><span class="keyword">using</span> System.Collections.Generic;</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="keyword">class</span> <span class="class">BankQueueSystem</span></div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    <span class="keyword">static</span> <span class="keyword">void</span> <span class="method">Main</span>()</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        <span class="comment">// إنشاء رتل لأرقام الانتظار</span></div>
+                            <div class="code-line">        Queue<<span class="keyword">int</span>> waitingQueue = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                            <div class="code-line">        <span class="keyword">int</span> lastTicket = 0;</div>
+                            <div class="code-line">        <span class="keyword">int</span> totalCustomers = 0;</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"🏦 === نظام طابور البنك === "</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"أدخل عدد العملاء اليوم: "</span>);</div>
+                            <div class="code-line">        totalCustomers = Convert.ToInt32(Console.ReadLine());</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        <span class="comment">// إضافة جميع العملاء للرتل</span></div>
+                            <div class="code-line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = 0; i < totalCustomers; i++)</div>
+                            <div class="code-line">        {</div>
+                            <div class="code-line">            lastTicket++;</div>
+                            <div class="code-line">            waitingQueue.Enqueue(lastTicket);</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"🎫 العميل رقم "</span> + lastTicket + <span class="string">" دخل الطابور"</span>);</div>
+                            <div class="code-line">        }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"\\n📊 إحصائيات الطابور:"</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"• عدد العملاء المنتظرين: "</span> + waitingQueue.Count);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"• أول عميل في الطابور: "</span> + waitingQueue.Peek());</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        <span class="comment">// خدمة العملاء واحدًا تلو الآخر</span></div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"\\n🔄 بدء خدمة العملاء:"</span>);</div>
+                            <div class="code-line">        <span class="keyword">while</span> (waitingQueue.Count > 0)</div>
+                            <div class="code-line">        {</div>
+                            <div class="code-line">            <span class="keyword">int</span> currentCustomer = waitingQueue.Dequeue();</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"✅ تم خدمة العميل رقم "</span> + currentCustomer);</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"   ⏳ باقي في الطابور: "</span> + waitingQueue.Count + <span class="string">" أشخاص"</span>);</div>
+                            <div class="code-line">            </div>
+                            <div class="code-line">            <span class="comment">// محاكاة وقت الخدمة (1 ثانية)</span></div>
+                            <div class="code-line">            System.Threading.Thread.Sleep(1000);</div>
+                            <div class="code-line">        }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"\\n🎉 === تمت خدمة جميع العملاء! ==="</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"📈 إجمالي العملاء اليوم: "</span> + totalCustomers);</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line">}</div>
+                        </div>
+                        
+                        <div class="note">
+                            <h4>📊 الناتج المتوقع:</h4>
+                            <div style="background: var(--code-bg); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                                <p>🏦 === نظام طابور البنك ===</p>
+                                <p>أدخل عدد العملاء اليوم: 5</p>
+                                <p>🎫 العميل رقم 1 دخل الطابور</p>
+                                <p>🎫 العميل رقم 2 دخل الطابور</p>
+                                <p>🎫 العميل رقم 3 دخل الطابور</p>
+                                <p>🎫 العميل رقم 4 دخل الطابور</p>
+                                <p>🎫 العميل رقم 5 دخل الطابور</p>
+                                <br>
+                                <p>📊 إحصائيات الطابور:</p>
+                                <p>• عدد العملاء المنتظرين: 5</p>
+                                <p>• أول عميل في الطابور: 1</p>
+                                <br>
+                                <p>🔄 بدء خدمة العملاء:</p>
+                                <p>✅ تم خدمة العميل رقم 1</p>
+                                <p>   ⏳ باقي في الطابور: 4 أشخاص</p>
+                                <p>✅ تم خدمة العميل رقم 2</p>
+                                <p>   ⏳ باقي في الطابور: 3 أشخاص</p>
+                                <p>... وهكذا حتى ينتهي جميع العملاء</p>
+                                <p>🎉 === تمت خدمة جميع العملاء! ===</p>
+                                <p>📈 إجمالي العملاء اليوم: 5</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>📋 مثال 2: نظام معالجة المهام (Task Processor)</h2>
+                        <p>نظام متقدم لجدولة ومعالجة المهام:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-line"><span class="keyword">using</span> System;</div>
+                            <div class="code-line"><span class="keyword">using</span> System.Collections.Generic;</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="keyword">class</span> <span class="class">Task</span></div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">string</span> Name { <span class="keyword">get</span>; <span class="keyword">set</span>; }</div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">int</span> Priority { <span class="keyword">get</span>; <span class="keyword">set</span>; }</div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">int</span> ExecutionTime { <span class="keyword">get</span>; <span class="keyword">set</span>; } <span class="comment">// بالثواني</span></div>
+                            <div class="code-line">}</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="keyword">class</span> <span class="class">TaskProcessor</span></div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    <span class="keyword">static</span> <span class="keyword">void</span> <span class="method">Main</span>()</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        <span class="comment">// إنشاء رتل للمهام</span></div>
+                            <div class="code-line">        Queue<Task> taskQueue = <span class="keyword">new</span> Queue<Task>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        <span class="comment">// إضافة مهام إلى الرتل</span></div>
+                            <div class="code-line">        taskQueue.Enqueue(<span class="keyword">new</span> Task { </div>
+                            <div class="code-line">            Name = <span class="string">"نسخ احتياطي للبيانات"</span>, </div>
+                            <div class="code-line">            Priority = 1, </div>
+                            <div class="code-line">            ExecutionTime = 5 </div>
+                            <div class="code-line">        });</div>
+                            <div class="code-line">        </div>
+                            <div class="code-line">        taskQueue.Enqueue(<span class="keyword">new</span> Task { </div>
+                            <div class="code-line">            Name = <span class="string">"فحص الفيروسات"</span>, </div>
+                            <div class="code-line">            Priority = 2, </div>
+                            <div class="code-line">            ExecutionTime = 3 </div>
+                            <div class="code-line">        });</div>
+                            <div class="code-line">        </div>
+                            <div class="code-line">        taskQueue.Enqueue(<span class="keyword">new</span> Task { </div>
+                            <div class="code-line">            Name = <span class="string">"تحميل التحديثات"</span>, </div>
+                            <div class="code-line">            Priority = 3, </div>
+                            <div class="code-line">            ExecutionTime = 10 </div>
+                            <div class="code-line">        });</div>
+                            <div class="code-line">        </div>
+                            <div class="code-line">        taskQueue.Enqueue(<span class="keyword">new</span> Task { </div>
+                            <div class="code-line">            Name = <span class="string">"تنظيف الملفات المؤقتة"</span>, </div>
+                            <div class="code-line">            Priority = 4, </div>
+                            <div class="code-line">            ExecutionTime = 2 </div>
+                            <div class="code-line">        });</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"🚀 === نظام معالجة المهام ==="</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"📋 عدد المهام في الانتظار: "</span> + taskQueue.Count);</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        <span class="comment">// معالجة المهام</span></div>
+                            <div class="code-line">        <span class="keyword">int</span> taskNumber = 1;</div>
+                            <div class="code-line">        <span class="keyword">int</span> totalTime = 0;</div>
+                            <div class="code-line">        </div>
+                            <div class="code-line">        <span class="keyword">while</span> (taskQueue.Count > 0)</div>
+                            <div class="code-line">        {</div>
+                            <div class="code-line">            Task currentTask = taskQueue.Dequeue();</div>
+                            <div class="code-line">            </div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"\\n🔧 المهمة #"</span> + taskNumber + <span class="string">": "</span> + currentTask.Name);</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"   📊 الأولوية: "</span> + currentTask.Priority);</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"   ⏱️  الوقت المطلوب: "</span> + currentTask.ExecutionTime + <span class="string">" ثانية"</span>);</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"   🎯 بدء المعالجة..."</span>);</div>
+                            <div class="code-line">            </div>
+                            <div class="code-line">            <span class="comment">// محاكاة وقت المعالجة</span></div>
+                            <div class="code-line">            System.Threading.Thread.Sleep(currentTask.ExecutionTime * 100);</div>
+                            <div class="code-line">            </div>
+                            <div class="code-line">            totalTime += currentTask.ExecutionTime;</div>
+                            <div class="code-line">            taskNumber++;</div>
+                            <div class="code-line">            </div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"   ✅ تم الانتهاء من المهمة"</span>);</div>
+                            <div class="code-line">            Console.WriteLine(<span class="string">"   📈 المهام المتبقية: "</span> + taskQueue.Count);</div>
+                            <div class="code-line">        }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"\\n🎉 === انتهت جميع المهام ==="</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"📊 إحصائيات:"</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"• عدد المهام المعالجة: "</span> + (taskNumber - 1));</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"• إجمالي وقت المعالجة: "</span> + totalTime + <span class="string">" ثانية"</span>);</div>
+                            <div class="code-line">        Console.WriteLine(<span class="string">"• متوسط وقت المهمة: "</span> + (totalTime / (taskNumber - 1)) + <span class="string">" ثانية"</span>);</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line">}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>📋 مثال 3: تنفيذ الرتل من الصفر</h2>
+                        <p>تنفيذ رتل مخصص باستخدام المصفوفات:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="class">CustomQueue</span>&lt;T&gt;</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    <span class="keyword">private</span> T[] <span class="method">items</span>;</div>
+                            <div class="code-line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="method">front</span> = 0;</div>
+                            <div class="code-line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="method">rear</span> = -1;</div>
+                            <div class="code-line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="method">count</span> = 0;</div>
+                            <div class="code-line">    <span class="keyword">private</span> <span class="keyword">int</span> <span class="method">capacity</span>;</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="method">CustomQueue</span>(<span class="keyword">int</span> capacity)</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        <span class="keyword">this</span>.capacity = capacity;</div>
+                            <div class="code-line">        items = <span class="keyword">new</span> T[capacity];</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">    <span class="comment">// إضافة عنصر</span></div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="method">Enqueue</span>(T item)</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        <span class="keyword">if</span> (count == capacity)</div>
+                            <div class="code-line">            <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">"الرتل ممتلئ"</span>);</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        rear = (rear + 1) % capacity;  <span class="comment">// مؤشر دائري</span></div>
+                            <div class="code-line">        items[rear] = item;</div>
+                            <div class="code-line">        count++;</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">    <span class="comment">// إزالة عنصر</span></div>
+                            <div class="code-line">    <span class="keyword">public</span> T <span class="method">Dequeue</span>()</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        <span class="keyword">if</span> (count == 0)</div>
+                            <div class="code-line">            <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">"الرتل فارغ"</span>);</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">        T item = items[front];</div>
+                            <div class="code-line">        front = (front + 1) % capacity;  <span class="comment">// مؤشر دائري</span></div>
+                            <div class="code-line">        count--;</div>
+                            <div class="code-line">        <span class="keyword">return</span> item;</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">    <span class="comment">// عرض العنصر الأول</span></div>
+                            <div class="code-line">    <span class="keyword">public</span> T <span class="method">Peek</span>()</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        <span class="keyword">if</span> (count == 0)</div>
+                            <div class="code-line">            <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">"الرتل فارغ"</span>);</div>
+                            <div class="code-line">        </div>
+                            <div class="code-line">        <span class="keyword">return</span> items[front];</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line"></div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="method">Count</span> => count;</div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">bool</span> <span class="method">IsEmpty</span> => count == 0;</div>
+                            <div class="code-line">    <span class="keyword">public</span> <span class="keyword">bool</span> <span class="method">IsFull</span> => count == capacity;</div>
+                            <div class="code-line">}</div>
+                        </div>
+                        
+                        <div class="note">
+                            <h4>🔍 شرح التنفيذ:</h4>
+                            <p>• نستخدم مصفوفة دائرية لتجنب إهدار الذاكرة</p>
+                            <p>• المؤشرات front و rear تتحرك دائرياً</p>
+                            <p>• التعقيد الزمني O(1) لكل العمليات</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function getApplicationsContent() {
+                return `
+                    <div class="section">
+                        <h2>تطبيقات عملية للرتل</h2>
+                        
+                        <h3>1. أنظمة التشغيل</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// Round Robin Scheduling</span></div>
+                            <div class="code-line">Queue<Process> readyQueue = <span class="keyword">new</span> Queue<Process>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إضافة العمليات للرتل</span></div>
+                            <div class="code-line"><span class="keyword">foreach</span> (Process p <span class="keyword">in</span> processes)</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    readyQueue.Enqueue(p);</div>
+                            <div class="code-line">}</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// تنفيذ كل عملية لمدة quantum ثم إعادتها للنهاية</span></div>
+                            <div class="code-line"><span class="keyword">while</span> (readyQueue.Count > 0)</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    Process current = readyQueue.Dequeue();</div>
+                            <div class="code-line">    Execute(current, quantum);</div>
+                            <div class="code-line">    </div>
+                            <div class="code-line">    <span class="keyword">if</span> (!current.IsFinished)</div>
+                            <div class="code-line">        readyQueue.Enqueue(current);</div>
+                            <div class="code-line">}</div>
+                        </div>
+                        
+                        <h3>2. معالجة الطلبات في خوادم الويب</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// طابور طلبات HTTP</span></div>
+                            <div class="code-line">Queue<HttpRequest> requestQueue = <span class="keyword">new</span> Queue<HttpRequest>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// استقبال الطلبات</span></div>
+                            <div class="code-line"><span class="keyword">void</span> <span class="method">ReceiveRequest</span>(HttpRequest request)</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    requestQueue.Enqueue(request);</div>
+                            <div class="code-line">    Console.WriteLine(<span class="string">"📥 تم استقبال طلب جديد، الطلبات في الانتظار: "</span> + requestQueue.Count);</div>
+                            <div class="code-line">}</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// معالجة الطلبات</span></div>
+                            <div class="code-line"><span class="keyword">void</span> <span class="method">ProcessRequests</span>()</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    <span class="keyword">while</span> (requestQueue.Count > 0)</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        HttpRequest request = requestQueue.Dequeue();</div>
+                            <div class="code-line">        ProcessRequest(request);</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line">}</div>
+                        </div>
+                        
+                        <h3>3. أنظمة الرسائل والطباعة</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// نظام طباعة المستندات</span></div>
+                            <div class="code-line">Queue<PrintJob> printQueue = <span class="keyword">new</span> Queue<PrintJob>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إضافة مستندات للطباعة</span></div>
+                            <div class="code-line">printQueue.Enqueue(<span class="keyword">new</span> PrintJob { Document = <span class="string">"report.pdf"</span>, Pages = 10 });</div>
+                            <div class="code-line">printQueue.Enqueue(<span class="keyword">new</span> PrintJob { Document = <span class="string">"invoice.docx"</span>, Pages = 2 });</div>
+                            <div class="code-line">printQueue.Enqueue(<span class="keyword">new</span> PrintJob { Document = <span class="string">"presentation.pptx"</span>, Pages = 15 });</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// معالجة طابور الطباعة</span></div>
+                            <div class="code-line"><span class="keyword">while</span> (printQueue.Count > 0)</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    PrintJob job = printQueue.Dequeue();</div>
+                            <div class="code-line">    PrintDocument(job);</div>
+                            <div class="code-line">    Console.WriteLine(<span class="string">"🖨️  تم طباعة: "</span> + job.Document);</div>
+                            <div class="code-line">}</div>
+                        </div>
+                        
+                        <h3>4. محاكاة الأحداث في الألعاب</h3>
+                        <div class="code-block">
+                            <div class="code-line"><span class="comment">// نظام أحداث اللعبة</span></div>
+                            <div class="code-line">Queue<GameEvent> eventQueue = <span class="keyword">new</span> Queue<GameEvent>();</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// إضافة أحداث أثناء اللعب</span></div>
+                            <div class="code-line">eventQueue.Enqueue(<span class="keyword">new</span> GameEvent { Type = <span class="string">"COLLISION"</span>, Data = <span class="string">"player-enemy"</span> });</div>
+                            <div class="code-line">eventQueue.Enqueue(<span class="keyword">new</span> GameEvent { Type = <span class="string">"PICKUP_ITEM"</span>, Data = <span class="string">"health-potion"</span> });</div>
+                            <div class="code-line">eventQueue.Enqueue(<span class="keyword">new</span> GameEvent { Type = <span class="string">"LEVEL_UP"</span>, Data = <span class="string">"level-2"</span> });</div>
+                            <div class="code-line"></div>
+                            <div class="code-line"><span class="comment">// معالجة الأحداث في كل إطار</span></div>
+                            <div class="code-line"><span class="keyword">void</span> <span class="method">UpdateGame</span>()</div>
+                            <div class="code-line">{</div>
+                            <div class="code-line">    <span class="keyword">while</span> (eventQueue.Count > 0)</div>
+                            <div class="code-line">    {</div>
+                            <div class="code-line">        GameEvent e = eventQueue.Dequeue();</div>
+                            <div class="code-line">        HandleEvent(e);</div>
+                            <div class="code-line">    }</div>
+                            <div class="code-line">}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function getComparisonContent() {
+                return `
+                    <div class="section">
+                        <h2>مقارنة بين هياكل البيانات</h2>
+                        
+                        <h3>مقارنة بين Queue و Stack و List</h3>
+                        <table class="comparison-table">
+                            <tr>
+                                <th>المعيار</th>
+                                <th>Queue</th>
+                                <th>Stack</th>
+                                <th>List</th>
+                            </tr>
+                            <tr>
+                                <td>المبدأ</td>
+                                <td>FIFO (أولاً يدخل أولاً يخرج)</td>
+                                <td>LIFO (أولاً يدخل آخراً يخرج)</td>
+                                <td>ترتيب عشوائي</td>
+                            </tr>
+                            <tr>
+                                <td>إضافة عنصر</td>
+                                <td>Enqueue() - للنهاية</td>
+                                <td>Push() - للأعلى</td>
+                                <td>Add() - للنهاية</td>
+                            </tr>
+                            <tr>
+                                <td>إزالة عنصر</td>
+                                <td>Dequeue() - من البداية</td>
+                                <td>Pop() - من الأعلى</td>
+                                <td>Remove() - من أي مكان</td>
+                            </tr>
+                            <tr>
+                                <td>عرض العنصر</td>
+                                <td>Peek() - الأول</td>
+                                <td>Peek() - الأعلى</td>
+                                <td>indexing - أي عنصر</td>
+                            </tr>
+                            <tr>
+                                <td>الاستخدام</td>
+                                <td>طوابير الانتظار</td>
+                                <td>استدعاء الدوال، التراجع</td>
+                                <td>قوائم عامة</td>
+                            </tr>
+                        </table>
+                        
+                        <h3>مقارنة تعقيد العمليات</h3>
+                        <table class="complexity-table">
+                            <tr>
+                                <th>العملية</th>
+                                <th>Queue</th>
+                                <th>Stack</th>
+                                <th>List</th>
+                                <th>Array</th>
+                            </tr>
+                            <tr>
+                                <td>إضافة</td>
+                                <td>O(1)</td>
+                                <td>O(1)</td>
+                                <td>O(1)*</td>
+                                <td>O(n)</td>
+                            </tr>
+                            <tr>
+                                <td>إزالة</td>
+                                <td>O(1)</td>
+                                <td>O(1)</td>
+                                <td>O(n)</td>
+                                <td>O(n)</td>
+                            </tr>
+                            <tr>
+                                <td>بحث</td>
+                                <td>O(n)</td>
+                                <td>O(n)</td>
+                                <td>O(n)</td>
+                                <td>O(n)</td>
+                            </tr>
+                            <tr>
+                                <td>وصول عشوائي</td>
+                                <td>O(n)</td>
+                                <td>O(n)</td>
+                                <td>O(1)</td>
+                                <td>O(1)</td>
+                            </tr>
+                        </table>
+                        <p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">* O(1) في نهاية القائمة، O(n) في منتصفها</p>
+                        
+                        <h3>متى تستخدم كل هيكل؟</h3>
+                        <div class="question">
+                            <h4>استخدم Queue عندما:</h4>
+                            <div class="answer">
+                                <p>• تحتاج نظام FIFO (أولاً يدخل أولاً يخرج)</p>
+                                <p>• تتعامل مع طوابير الانتظار</p>
+                                <p>• تريد معالجة البيانات حسب ترتيب وصولها</p>
+                                <p>• لا تحتاج للوصول العشوائي للعناصر</p>
+                                <p>• أمثلة: أنظمة الحجز، معالجة الطلبات، محاكاة الأحداث</p>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <h4>استخدم Stack عندما:</h4>
+                            <div class="answer">
+                                <p>• تحتاج نظام LIFO (أولاً يدخل آخراً يخرج)</p>
+                                <p>• تتعامل مع التراجع (Undo)</p>
+                                <p>• تعمل مع استدعاءات الدوال</p>
+                                <p>• تحتاج للوصول للعنصر الأخير فقط</p>
+                                <p>• أمثلة: متصفح التراجع، تحليل التعابير، تنفيذ الخوارزميات</p>
+                            </div>
+                        </div>
+                        
+                        <div class="question">
+                            <h4>استخدم List عندما:</h4>
+                            <div class="answer">
+                                <p>• تحتاج للوصول العشوائي للعناصر</p>
+                                <p>• تريد إضافة/حذف عناصر من أي موقع</p>
+                                <p>• تحتاج فرز أو بحث متقدم</p>
+                                <p>• تتعامل مع مجموعات بيانات متنوعة</p>
+                                <p>• أمثلة: قوائم المستخدمين، سجلات البيانات، مجموعات عامة</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function getQAContent() {
+                return `
+                    <div class="section">
+                        <h2> أسئلة وأجوبة شاملة</h2>
+                        
+                        <div class="question">
+                            <h4>س 1: ما الفرق بين Dequeue() و Peek()؟</h4>
+                            <div class="answer">
+                                <p><strong>Dequeue():</strong></p>
+                                <ul>
+                                    <li>تزيل العنصر الأول من الرتل</li>
+                                    <li>تُرجع قيمة العنصر المزال</li>
+                                    <li>تقلل Count بمقدار 1</li>
+                                    <li>إذا كان الرتل فارغاً → استثناء</li>
+                                </ul>
+                                <p><strong>Peek():</strong></p>
+                                <ul>
+                                    <li>تعرض العنصر الأول فقط</li>
+                                    <li>لا تزيل العنصر من الرتل</li>
+                                    <li>لا تغير قيمة Count</li>
+                                    <li>إذا كان الرتل فارغاً → استثناء</li>
+                                </ul>
+                                <div class="code-block">
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> q = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line">q.Enqueue(10); q.Enqueue(20); q.Enqueue(30);</div>
+                                    <div class="code-line"><span class="comment">// قبل: [10, 20, 30], Count = 3</span></div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="keyword">int</span> peeked = q.Peek();     <span class="comment">// 10</span></div>
+                                    <div class="code-line"><span class="comment">// بعد Peek: [10, 20, 30], Count = 3</span></div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="keyword">int</span> dequeued = q.Dequeue(); <span class="comment">// 10</span></div>
+                                    <div class="code-line"><span class="comment">// بعد Dequeue: [20, 30], Count = 2</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 2: ماذا يحدث عند استدعاء Dequeue() على رتل فارغ؟</h4>
+                            <div class="answer">
+                                <p>سيتم رمي استثناء <strong>InvalidOperationException</strong> مع الرسالة "Queue empty."</p>
+                                <div class="code-block">
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> emptyQueue = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line"><span class="comment">// الخطأ التالي سيحدث:</span></div>
+                                    <div class="code-line"><span class="comment">// emptyQueue.Dequeue(); // InvalidOperationException: Queue empty.</span></div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// الحل: التحقق أولاً</span></div>
+                                    <div class="code-line"><span class="keyword">if</span> (emptyQueue.Count > 0)</div>
+                                    <div class="code-line">{</div>
+                                    <div class="code-line">    emptyQueue.Dequeue();</div>
+                                    <div class="code-line">}</div>
+                                    <div class="code-line"><span class="keyword">else</span></div>
+                                    <div class="code-line">{</div>
+                                    <div class="code-line">    Console.WriteLine(<span class="string">"الرتل فارغ!"</span>);</div>
+                                    <div class="code-line">}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 3: كيف يمكنني نسخ رتل إلى رتل جديد؟</h4>
+                            <div class="answer">
+                                <p>هناك عدة طرق:</p>
+                                <div class="code-block">
+                                    <div class="code-line"><span class="comment">// الطريقة 1: استخدام المنشئ</span></div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> original = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line">original.Enqueue(1); original.Enqueue(2); original.Enqueue(3);</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> copy1 = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>(original);</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// الطريقة 2: تحويل إلى مصفوفة ثم إلى رتل</span></div>
+                                    <div class="code-line"><span class="keyword">int</span>[] array = original.ToArray();</div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> copy2 = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>(array);</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// الطريقة 3: نسخ يدوي مع الحفاظ على الترتيب</span></div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> copy3 = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line"><span class="keyword">foreach</span> (<span class="keyword">int</span> item <span class="keyword">in</span> original)</div>
+                                    <div class="code-line">{</div>
+                                    <div class="code-line">    copy3.Enqueue(item);</div>
+                                    <div class="code-line">}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 4: ما الفرق بين Queue و ConcurrentQueue؟</h4>
+                            <div class="answer">
+                                <p><strong>Queue:</strong></p>
+                                <ul>
+                                    <li>في System.Collections.Generic</li>
+                                    <li>غير آمن للاستخدام من عدة threads في نفس الوقت</li>
+                                    <li>يحتاج lock يدوي للوصول المتزامن</li>
+                                    <li>أسرع في العمليات الأحادية</li>
+                                </ul>
+                                <p><strong>ConcurrentQueue:</strong></p>
+                                <ul>
+                                    <li>في System.Collections.Concurrent</li>
+                                    <li>آمن للاستخدام من عدة threads في نفس الوقت</li>
+                                    <li>لا يحتاج lock يدوي</li>
+                                    <li>أبطأ قليلاً بسبب التزامن</li>
+                                </ul>
+                                <div class="code-block">
+                                    <div class="code-line"><span class="comment">// استخدام ConcurrentQueue في بيئة متعددة Threads</span></div>
+                                    <div class="code-line"><span class="keyword">using</span> System.Collections.Concurrent;</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line">ConcurrentQueue<<span class="keyword">string</span>> concurrentQueue = <span class="keyword">new</span> ConcurrentQueue<<span class="keyword">string</span>>();</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// Thread 1</span></div>
+                                    <div class="code-line">Task.Run(() => concurrentQueue.Enqueue(<span class="string">"Task1"</span>));</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// Thread 2</span></div>
+                                    <div class="code-line">Task.Run(() => concurrentQueue.Enqueue(<span class="string">"Task2"</span>));</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// آمن من عدة threads بدون lock</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 5: كيف يمكنني تحويل الرتل إلى قائمة مع الحفاظ على الترتيب؟</h4>
+                            <div class="answer">
+                                <div class="code-block">
+                                    <div class="code-line">Queue<<span class="keyword">string</span>> queue = <span class="keyword">new</span> Queue<<span class="keyword">string</span>>();</div>
+                                    <div class="code-line">queue.Enqueue(<span class="string">"أول"</span>);</div>
+                                    <div class="code-line">queue.Enqueue(<span class="string">"ثاني"</span>);</div>
+                                    <div class="code-line">queue.Enqueue(<span class="string">"ثالث"</span>);</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// الطريقة 1: استخدام ToList() بعد ToArray()</span></div>
+                                    <div class="code-line">List<<span class="keyword">string</span>> list1 = queue.ToArray().ToList();</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// الطريقة 2: استخدام foreach</span></div>
+                                    <div class="code-line">List<<span class="keyword">string</span>> list2 = <span class="keyword">new</span> List<<span class="keyword">string</span>>();</div>
+                                    <div class="code-line"><span class="keyword">foreach</span> (<span class="keyword">string</span> item <span class="keyword">in</span> queue)</div>
+                                    <div class="code-line">{</div>
+                                    <div class="code-line">    list2.Add(item);</div>
+                                    <div class="code-line">}</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// الطريقة 3: استخدام LINQ</span></div>
+                                    <div class="code-line">List<<span class="keyword">string</span>> list3 = queue.Select(x => x).ToList();</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// جميع الطرق تحافظ على الترتيب: ["أول", "ثاني", "ثالث"]</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 6: ما هو تعقيد عمليات الرتل؟</h4>
+                            <div class="answer">
+                                <table class="complexity-table">
+                                    <tr>
+                                        <th>العملية</th>
+                                        <th>تعقيد الزمن</th>
+                                        <th>تعقيد المساحة</th>
+                                        <th>الشرح</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Enqueue()</td>
+                                        <td>O(1)</td>
+                                        <td>O(1)</td>
+                                        <td>إضافة في النهاية</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dequeue()</td>
+                                        <td>O(1)</td>
+                                        <td>O(1)</td>
+                                        <td>إزالة من البداية</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Peek()</td>
+                                        <td>O(1)</td>
+                                        <td>O(1)</td>
+                                        <td>عرض الأول</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Contains()</td>
+                                        <td>O(n)</td>
+                                        <td>O(1)</td>
+                                        <td>بحث خطي</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ToArray()</td>
+                                        <td>O(n)</td>
+                                        <td>O(n)</td>
+                                        <td>نسخ جميع العناصر</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Clear()</td>
+                                        <td>O(1)</td>
+                                        <td>O(1)</td>
+                                        <td>مسح المؤشرات</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 7: كيف يمكنني عكس الرتل؟</h4>
+                            <div class="answer">
+                                <div class="code-block">
+                                    <div class="code-line"><span class="keyword">public</span> <span class="keyword">static</span> Queue<<span class="keyword">int</span>> <span class="method">ReverseQueue</span>(Queue<<span class="keyword">int</span>> queue)</div>
+                                    <div class="code-line">{</div>
+                                    <div class="code-line">    Stack<<span class="keyword">int</span>> stack = <span class="keyword">new</span> Stack<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line">    </div>
+                                    <div class="code-line">    <span class="comment">// تفريغ الرتل في المكدس</span></div>
+                                    <div class="code-line">    <span class="keyword">while</span> (queue.Count > 0)</div>
+                                    <div class="code-line">    {</div>
+                                    <div class="code-line">        stack.Push(queue.Dequeue());</div>
+                                    <div class="code-line">    }</div>
+                                    <div class="code-line">    </div>
+                                    <div class="code-line"><span class="comment">// تفريغ المكدس في رتل جديد (بترتيب عكسي)</span></div>
+                                    <div class="code-line">    Queue<<span class="keyword">int</span>> reversed = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line">    <span class="keyword">while</span> (stack.Count > 0)</div>
+                                    <div class="code-line">    {</div>
+                                    <div class="code-line">        reversed.Enqueue(stack.Pop());</div>
+                                    <div class="code-line">    }</div>
+                                    <div class="code-line">    </div>
+                                    <div class="code-line">    <span class="keyword">return</span> reversed;</div>
+                                    <div class="code-line">}</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// مثال:</span></div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> original = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line">original.Enqueue(1); original.Enqueue(2); original.Enqueue(3);</div>
+                                    <div class="code-line"><span class="comment">// original: [1, 2, 3]</span></div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> reversed = ReverseQueue(original);</div>
+                                    <div class="code-line"><span class="comment">// reversed: [3, 2, 1]</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <h4>س 8: كيف يمكنني إيجاد أكبر/أصغر عنصر في الرتل؟</h4>
+                            <div class="answer">
+                                <div class="code-block">
+                                    <div class="code-line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="method">FindMaxInQueue</span>(Queue<<span class="keyword">int</span>> queue)</div>
+                                    <div class="code-line">{</div>
+                                    <div class="code-line">    <span class="keyword">if</span> (queue.Count == 0)</div>
+                                    <div class="code-line">        <span class="keyword">throw</span> <span class="keyword">new</span> InvalidOperationException(<span class="string">"الرتل فارغ"</span>);</div>
+                                    <div class="code-line">    </div>
+                                    <div class="code-line">    <span class="keyword">int</span> max = <span class="keyword">int</span>.MinValue;</div>
+                                    <div class="code-line">    <span class="keyword">int</span> size = queue.Count;</div>
+                                    <div class="code-line">    </div>
+                                    <div class="code-line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = 0; i < size; i++)</div>
+                                    <div class="code-line">    {</div>
+                                    <div class="code-line">        <span class="keyword">int</span> current = queue.Dequeue();</div>
+                                    <div class="code-line">        max = Math.Max(max, current);</div>
+                                    <div class="code-line">        queue.Enqueue(current);  <span class="comment">// إعادة العنصر للحفاظ على الرتل</span></div>
+                                    <div class="code-line">    }</div>
+                                    <div class="code-line">    </div>
+                                    <div class="code-line">    <span class="keyword">return</span> max;</div>
+                                    <div class="code-line">}</div>
+                                    <div class="code-line"></div>
+                                    <div class="code-line"><span class="comment">// مثال:</span></div>
+                                    <div class="code-line">Queue<<span class="keyword">int</span>> q = <span class="keyword">new</span> Queue<<span class="keyword">int</span>>();</div>
+                                    <div class="code-line">q.Enqueue(10); q.Enqueue(5); q.Enqueue(20); q.Enqueue(15);</div>
+                                    <div class="code-line"><span class="keyword">int</span> maximum = FindMaxInQueue(q);  <span class="comment">// الناتج: 20</span></div>
+                                    <div class="code-line"><span class="comment">// q لا تزال: [10, 5, 20, 15]</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
